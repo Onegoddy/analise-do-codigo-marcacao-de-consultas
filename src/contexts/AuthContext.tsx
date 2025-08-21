@@ -1,25 +1,30 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { authService } from '../services/auth';
-import { User, LoginCredentials, RegisterData, AuthContextData } from '../types/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';// React e hooks: createContext para criar contexto global, useContext para consumir,
+                                                                              // useState para estados internos, useEffect para efeitos colaterais
+import AsyncStorage from '@react-native-async-storage/async-storage';// Armazenamento local persistente para salvar usuário e token
+import { authService } from '../services/auth';// Serviço que realiza autenticação, registro, logout e carregamento de usuários
+import { User, LoginCredentials, RegisterData, AuthContextData } from '../types/auth';// Tipos TypeScript para usuário, credenciais, registro e contexto de autenticação
 
 // Chaves de armazenamento
-const STORAGE_KEYS = {
-  USER: '@MedicalApp:user',
-  TOKEN: '@MedicalApp:token',
+const STORAGE_KEYS = {// Chaves utilizadas para salvar dados no AsyncStorage
+  USER: '@MedicalApp:user',// USER: dados do usuário logado
+  TOKEN: '@MedicalApp:token',// TOKEN: token de autenticação
 };
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+const AuthContext = createContext<AuthContextData>({} as AuthContextData);// Cria o contexto de autenticação com tipagem AuthContextData
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {// Provider que encapsula a aplicação, fornecendo estado e funções de autenticação
+  // children: componentes filhos que terão acesso ao contexto
+  const [user, setUser] = useState<User | null>(null);// user: estado do usuário logado, null se não estiver logado
+  const [loading, setLoading] = useState(true);// loading: indica se o carregamento inicial do usuário está em andamento
 
-  useEffect(() => {
+  useEffect(() => {// Ao montar o componente, carrega usuário armazenado e usuários registrados
     loadStoredUser();
     loadRegisteredUsers();
   }, []);
 
+  // Recupera usuário previamente logado do AsyncStorage via authService
+  // Atualiza o estado do usuário se encontrado
+  // Sempre finaliza definindo loading como false
   const loadStoredUser = async () => {
     try {
       const storedUser = await authService.getStoredUser();
@@ -33,6 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Carrega lista de usuários registrados do authService
+  // Apenas para inicialização do app, sem alterar estado visível
   const loadRegisteredUsers = async () => {
     try {
       await authService.loadRegisteredUsers();
@@ -40,6 +47,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Erro ao carregar usuários registrados:', error);
     }
   };
+  
+  // Realiza login do usuário com credenciais fornecidas
+  // Atualiza estado do usuário e salva dados no AsyncStorage (USER e TOKEN)
+  // Lança erro se falhar
 
   const signIn = async (credentials: LoginCredentials) => {
     try {
@@ -52,6 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Realiza registro de novo usuário com dados fornecidos
+  // Atualiza estado do usuário e salva dados no AsyncStorage
+  // Lança erro se falhar
   const register = async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
@@ -63,6 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+
+  // Logout do usuário
+  // Limpa estado do usuário e remove dados do AsyncStorage
+  // Trata erro caso ocorra
   const signOut = async () => {
     try {
       await authService.signOut();
@@ -73,7 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Erro ao fazer logout:', error);
     }
   };
-
+  
+  // Atualiza dados do usuário no estado e no AsyncStorage
+  // Mantém persistência das alterações
+  // Lança erro se houver problema
   const updateUser = async (updatedUser: User) => {
     try {
       setUser(updatedUser);
@@ -85,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
+    // Fornece o contexto de autenticação para todos os filhos
+    // Inclui usuário, loading, e funções signIn, register, signOut e updateUser
     <AuthContext.Provider value={{ user, loading, signIn, register, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
@@ -92,9 +115,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  const context = useContext(AuthContext);// Hook customizado para consumir AuthContext
+  if (!context) {// Garante que seja usado dentro de um AuthProvider
+    throw new Error('useAuth must be used within an AuthProvider');// Lança erro caso não esteja dentro do provider
   }
   return context;
 }; 
