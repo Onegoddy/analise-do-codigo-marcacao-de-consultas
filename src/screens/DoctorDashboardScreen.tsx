@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, TextStyle } from 'react-native';
-import { Button, ListItem, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import StatisticsCard from '../components/StatisticsCard';
-import AppointmentActionModal from '../components/AppointmentActionModal';
-import { statisticsService, Statistics } from '../services/statistics';
-import { notificationService } from '../services/notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// ====== IMPORTS DE DEPENDÊNCIAS E TIPOS ======
+
+import React, { useState } from 'react';// React, hooks e navegação
+import styled from 'styled-components/native';// Styled-components para estilização
+import { ScrollView, ViewStyle, TextStyle } from 'react-native';// ScrollView para rolagem da tela ViewStyle e TextStyle para tipagem de estilos (TypeScript)
+import { Button, ListItem, Text } from 'react-native-elements';// Componentes prontos de UI (botões, listas e textos estilizados)
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação (dados e ações do usuário logado)
+import { useNavigation } from '@react-navigation/native';// Hook para navegar entre telas
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem de navegação para pilha nativa (TypeScript)
+import { useFocusEffect } from '@react-navigation/native';// Hook que executa lógica quando a tela ganha foco
+import { RootStackParamList } from '../types/navigation';// Definição centralizada dos tipos de rotas da aplicação
+import theme from '../styles/theme';// Componentes UI (Header, StatisticsCard, AppointmentActionModal)
+import Header from '../components/Header';// Componentes UI (Header, StatisticsCard, AppointmentActionModal)
+import StatisticsCard from '../components/StatisticsCard';// Componentes UI (Header, StatisticsCard, AppointmentActionModal)
+import AppointmentActionModal from '../components/AppointmentActionModal';// Componentes UI (Header, StatisticsCard, AppointmentActionModal)
+import { statisticsService, Statistics } from '../services/statistics';// Serviços (estatísticas, notificações, armazenamento local)
+import { notificationService } from '../services/notifications';// Serviços (estatísticas, notificações, armazenamento local)
+import AsyncStorage from '@react-native-async-storage/async-storage';// Serviços (estatísticas, notificações, armazenamento local)
+
+// ====== TIPAGEM DE DADOS ======
+// Estrutura de uma consulta médica
+// Props para estilização condicional (status de consulta)
+
 
 type DoctorDashboardScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'DoctorDashboard'>;
@@ -35,6 +42,8 @@ interface StyledProps {
   status: string;
 }
 
+// Funções utilitárias para retornar cor e texto de acordo com status da consulta
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -45,7 +54,7 @@ const getStatusColor = (status: string) => {
       return theme.colors.warning;
   }
 };
-
+// Funções utilitárias para retornar cor e texto de acordo com status da consulta
 const getStatusText = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -57,15 +66,23 @@ const getStatusText = (status: string) => {
   }
 };
 
+// ====== TELA DO PAINEL DO MÉDICO ======
+// Exibe estatísticas, lista de consultas do médico
+// Permite confirmar ou cancelar consultas
+// Integra com AsyncStorage e envia notificações
+
 const DoctorDashboardScreen: React.FC = () => {
   const { user, signOut } = useAuth();
   const navigation = useNavigation<DoctorDashboardScreenProps['navigation']>();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [statistics, setStatistics] = useState<Partial<Statistics> | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [actionType, setActionType] = useState<'confirm' | 'cancel'>('confirm');
+  const [appointments, setAppointments] = useState<Appointment[]>([]);// Lista de consultas do médico
+  const [statistics, setStatistics] = useState<Partial<Statistics> | null>(null);// Estatísticas do médico (número de consultas, etc.)
+  const [loading, setLoading] = useState(true);// Controle de carregamento
+  const [modalVisible, setModalVisible] = useState(false);// Controle de exibição do modal de ação
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);// Consulta selecionada no modal
+  const [actionType, setActionType] = useState<'confirm' | 'cancel'>('confirm');// Tipo de ação (confirmar ou cancelar)
+
+  // ====== FUNÇÃO DE CARREGAMENTO ======
+  // Recupera consultas do AsyncStorage e estatísticas do médico
 
   const loadAppointments = async () => {
     try {
@@ -90,6 +107,10 @@ const DoctorDashboardScreen: React.FC = () => {
     }
   };
 
+  // ====== FUNÇÕES DO MODAL ======
+  // Abrir modal com ação selecionada (confirmar ou cancelar)
+  // Fechar modal e limpar consulta selecionada
+
   const handleOpenModal = (appointment: Appointment, action: 'confirm' | 'cancel') => {
     setSelectedAppointment(appointment);
     setActionType(action);
@@ -101,6 +122,11 @@ const DoctorDashboardScreen: React.FC = () => {
     setSelectedAppointment(null);
   };
 
+  // ====== FUNÇÃO DE CONFIRMAR/CANCELAR ======
+  // Atualiza status da consulta (confirmada ou cancelada)
+  // Persiste alterações no AsyncStorage
+  // Envia notificação para paciente
+  // Recarrega a lista após a atualização
   const handleConfirmAction = async (reason?: string) => {
     if (!selectedAppointment) return;
 
@@ -147,7 +173,7 @@ const DoctorDashboardScreen: React.FC = () => {
       loadAppointments();
     }, [])
   );
-
+  // ====== INTERFACE DA TELA ======
   return (
     <Container>
       <Header />
@@ -268,7 +294,12 @@ const DoctorDashboardScreen: React.FC = () => {
     </Container>
   );
 };
-
+  
+// ====== ESTILOS AUXILIARES ======
+// ScrollView com padding
+// Botões estilizados (perfil, configurações, logout, confirmar, cancelar)
+// Estilos de texto (nome do paciente, data, especialidade)
+// Layout da tela, títulos, cards e badges de status
 const styles = {
   scrollContent: {
     padding: 20,
@@ -388,5 +419,5 @@ const StatisticsGrid = styled.View`
   justify-content: space-between;
   margin-bottom: 20px;
 `;
-
+// Exporta a tela como padrão
 export default DoctorDashboardScreen; 

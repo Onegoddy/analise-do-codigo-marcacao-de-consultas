@@ -1,36 +1,40 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { Input, Button, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import theme from '../styles/theme';
-import { ViewStyle } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
+import React, { useState } from 'react';// React e useState
+import styled from 'styled-components/native';// Styled-components para estilização
+import { Input, Button, Text } from 'react-native-elements';// Componentes prontos de UI
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação
+import theme from '../styles/theme';// Tema do app
+import { ViewStyle } from 'react-native';// Tipos nativos
+import { useNavigation } from '@react-navigation/native';// Hook de navegação
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem da navegação
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas
 
+// ====== TIPAGEM DAS PROPRIEDADES DO COMPONENTE ======
 type RegisterScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
 };
 
+// ====== COMPONENTE PRINCIPAL ======
 const RegisterScreen: React.FC = () => {
-  const { register } = useAuth();
-  const navigation = useNavigation<RegisterScreenProps['navigation']>();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
+  const { register } = useAuth();// Função de registro do contexto
+  const navigation = useNavigation<RegisterScreenProps['navigation']>();// Hook de navegação
+  const [name, setName] = useState('');// Nome do usuário
+  const [email, setEmail] = useState(''); // Email do usuário
+  const [password, setPassword] = useState('');// Senha do usuário
+  const [loading, setLoading] = useState(false); // Loading ao enviar formulário
+  const [error, setError] = useState('');// Mensagem de erro
+  
+  // ====== FUNÇÃO DE REGISTRO ======
   const handleRegister = async () => {
     try {
       setLoading(true);
       setError('');
-
+      // Validação simples
       if (!name || !email || !password) {
         setError('Por favor, preencha todos os campos');
         return;
       }
-
+      // Chama a função de registro
       await register({
         name,
         email,
@@ -45,7 +49,8 @@ const RegisterScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
+  // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Title>Cadastro de Paciente</Title>
@@ -95,6 +100,7 @@ const RegisterScreen: React.FC = () => {
   );
 };
 
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   input: {
     marginBottom: 15,
@@ -117,6 +123,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -138,4 +145,5 @@ const ErrorText = styled.Text`
   margin-bottom: 10px;
 `;
 
+// ====== EXPORTAÇÃO DO COMPONENTE ======
 export default RegisterScreen; 

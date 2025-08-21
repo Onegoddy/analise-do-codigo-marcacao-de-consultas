@@ -1,22 +1,25 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle } from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
+// ====== IMPORTS DE DEPENDÊNCIAS E TIPOS ======
+
+import React, { useState } from 'react';// React e hooks para estado e UI
+import styled from 'styled-components/native';// Styled-components para estilização
+import { ScrollView, ViewStyle } from 'react-native';// Navegação e tipagens de rotas
+import { Button, Input } from 'react-native-elements';// Contexto de autenticação e dados do usuário
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação e dados do usuário
+import { useNavigation } from '@react-navigation/native';// Navegação e tipagens de rotas
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import DoctorList from '../components/DoctorList';
-import TimeSlotList from '../components/TimeSlotList';
-import { notificationService } from '../services/notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import theme from '../styles/theme';// Componentes visuais do app (Header, DoctorList, TimeSlotList)
+import Header from '../components/Header';// Componentes visuais do app (Header, DoctorList, TimeSlotList)
+import DoctorList from '../components/DoctorList';// Componentes visuais do app (Header, DoctorList, TimeSlotList)
+import TimeSlotList from '../components/TimeSlotList';// Componentes visuais do app (Header, DoctorList, TimeSlotList)
+import { notificationService } from '../services/notifications';// Serviço de notificações para alertar médicos
+import AsyncStorage from '@react-native-async-storage/async-storage';// AsyncStorage para persistência de dados local
 
+// ====== TIPAGEM DOS DADOS ======
 type CreateAppointmentScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateAppointment'>;
 };
-
+// Estrutura de uma consulta médica
 interface Appointment {
   id: string;
   patientId: string;
@@ -28,7 +31,7 @@ interface Appointment {
   specialty: string;
   status: 'pending' | 'confirmed' | 'cancelled';
 }
-
+// Estrutura de um médico (nome, especialidade, imagem)
 interface Doctor {
   id: string;
   name: string;
@@ -70,6 +73,10 @@ const availableDoctors: Doctor[] = [
   },
 ];
 
+// ====== TELA DE CRIAÇÃO DE CONSULTA ======
+// Permite ao paciente selecionar data, horário e médico
+// Cria um agendamento e salva no AsyncStorage
+// Notifica o médico escolhido
 const CreateAppointmentScreen: React.FC = () => {
   const { user } = useAuth();
   const navigation = useNavigation<CreateAppointmentScreenProps['navigation']>();
@@ -123,7 +130,13 @@ const CreateAppointmentScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
+  // ====== INTERFACE DA TELA ======
+  // Campo para digitar a data
+  // Lista de horários disponíveis
+  // Lista de médicos disponíveis
+  // Mensagem de erro exibida caso falte dados
+  // Botões para confirmar agendamento ou cancelar
   return (
     <Container>
       <Header />
@@ -171,7 +184,10 @@ const CreateAppointmentScreen: React.FC = () => {
     </Container>
   );
 };
+// ====== ESTILOS AUXILIARES ======
 
+// Input com espaçamento inferior
+// Botões estilizados (confirmar e cancelar)
 const styles = {
   scrollContent: {
     padding: 20,
@@ -192,12 +208,12 @@ const styles = {
     paddingVertical: 12,
   },
 };
-
+// ScrollView com padding
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
 `;
-
+// Títulos e subtítulos da tela
 const Title = styled.Text`
   font-size: 24px;
   font-weight: bold;
@@ -213,11 +229,11 @@ const SectionTitle = styled.Text`
   margin-bottom: 10px;
   margin-top: 10px;
 `;
-
+// Mensagem de erro em vermelho
 const ErrorText = styled.Text`
   color: ${theme.colors.error};
   text-align: center;
   margin-bottom: 10px;
 `;
-
+// Exporta a tela como padrão
 export default CreateAppointmentScreen;

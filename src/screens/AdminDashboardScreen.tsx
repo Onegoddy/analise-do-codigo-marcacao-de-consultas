@@ -1,21 +1,28 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, TextStyle } from 'react-native';
-import { Button, ListItem, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import StatisticsCard from '../components/StatisticsCard';
-import { statisticsService, Statistics } from '../services/statistics';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';// Base do React e hook para estados locais
+import styled from 'styled-components/native';// Estilização de componentes com styled-components
+import { ScrollView, ViewStyle, TextStyle } from 'react-native';// Componentes e tipagem para estilos
+import { Button, ListItem, Text } from 'react-native-elements';// Componentes prontos de UI
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação (usuário logado, logout, etc.)
+import { useNavigation } from '@react-navigation/native';// Hook para navegação entre telas
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem da navegação (stack)
+import { useFocusEffect } from '@react-navigation/native';// Executa lógica quando a tela volta a estar em foco
+import { RootStackParamList } from '../types/navigation';// Tipos de rotas definidas no app
+import theme from '../styles/theme';// Tema global (cores, fontes, etc.)
+import Header from '../components/Header';// Cabeçalho padrão
+import StatisticsCard from '../components/StatisticsCard';// Card para exibir estatísticas
+import { statisticsService, Statistics } from '../services/statistics';// Serviço de estatísticas gerais
+
+import AsyncStorage from '@react-native-async-storage/async-storage';// Armazenamento local no dispositivo
+
+// Tipagem para navegação da tela AdminDashboard
+// Garante que o navigation reconhece a rota "AdminDashboard"
 
 type AdminDashboardScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'AdminDashboard'>;
 };
+
+// Modelo de consulta médica armazenada no AsyncStorage
+// Contém informações de paciente, médico, data/hora, especialidade e status
 
 interface Appointment {
   id: string;
@@ -28,6 +35,9 @@ interface Appointment {
   status: 'pending' | 'confirmed' | 'cancelled';
 }
 
+// Modelo de usuário armazenado no AsyncStorage
+// Inclui dados básicos e papel (admin, médico ou paciente)
+
 interface User {
   id: string;
   name: string;
@@ -35,9 +45,16 @@ interface User {
   role: 'admin' | 'doctor' | 'patient';
 }
 
+// Tipagem para componentes estilizados que variam conforme o status (cor do badge/texto)
+
 interface StyledProps {
   status: string;
 }
+
+// Retorna a cor do status da consulta
+// - Confirmada: verde
+// - Cancelada: vermelho
+// - Pendente: amarelo
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -50,6 +67,11 @@ const getStatusColor = (status: string) => {
   }
 };
 
+// Retorna o texto legível do status da consulta
+// - confirmed -> "Confirmada"
+// - cancelled -> "Cancelada"
+// - pending -> "Pendente"
+
 const getStatusText = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -61,13 +83,16 @@ const getStatusText = (status: string) => {
   }
 };
 
+// ====== COMPONENTE ADMIN DASHBOARD ======
+// Tela principal do administrador, com estatísticas e gestão de consultas/usuários
+
 const AdminDashboardScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth();// user/signOut -> obtidos do contexto de autenticação
   const navigation = useNavigation<AdminDashboardScreenProps['navigation']>();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [statistics, setStatistics] = useState<Statistics | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);// appointments -> lista de consultas
+  const [users, setUsers] = useState<User[]>([])// users -> lista de usuários
+  const [statistics, setStatistics] = useState<Statistics | null>(null);// statistics -> estatísticas gerais
+  const [loading, setLoading] = useState(true);// loading -> indicador de carregamento
 
   const loadData = async () => {
     try {
@@ -101,7 +126,8 @@ const AdminDashboardScreen: React.FC = () => {
       loadData();
     }, [])
   );
-
+  
+  // Atualiza o status de uma consulta no AsyncStorage
   const handleUpdateStatus = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled') => {
     try {
       const storedAppointments = await AsyncStorage.getItem('@MedicalApp:appointments');
@@ -120,13 +146,14 @@ const AdminDashboardScreen: React.FC = () => {
       console.error('Erro ao atualizar status:', error);
     }
   };
-
+  
+  // Renderização da tela:
   return (
     <Container>
       <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Title>Painel Administrativo</Title>
-
+        
         <Button
           title="Gerenciar Usuários"
           onPress={() => navigation.navigate('UserManagement')}
@@ -242,6 +269,8 @@ const AdminDashboardScreen: React.FC = () => {
   );
 };
 
+// Estilos adicionais usados em componentes não estilizados com styled-components
+// Define margens, cores, tamanhos de fonte e botões de ação
 const styles = {
   scrollContent: {
     padding: 20,
@@ -286,12 +315,13 @@ const styles = {
     marginTop: 4,
   },
 };
-
+// Componentes estilizados reutilizáveis
+// - Container, títulos de seção, cards de consulta
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
 `;
-
+// - Textos de carregamento e vazio
 const Title = styled.Text`
   font-size: 24px;
   font-weight: bold;
@@ -299,7 +329,7 @@ const Title = styled.Text`
   margin-bottom: 20px;
   text-align: center;
 `;
-
+// - Textos de carregamento e vazio
 const SectionTitle = styled.Text`
   font-size: 20px;
   font-weight: bold;
@@ -350,7 +380,7 @@ const ButtonContainer = styled.View`
   justify-content: space-between;
   margin-top: 8px;
 `;
-
+// - Grid de estatísticas
 const StatisticsGrid = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
@@ -358,6 +388,7 @@ const StatisticsGrid = styled.View`
   margin-bottom: 20px;
 `;
 
+// - Lista de especialidades
 const SpecialtyContainer = styled.View`
   background-color: ${theme.colors.white};
   border-radius: 8px;
@@ -387,5 +418,5 @@ const SpecialtyCount = styled.Text`
   color: ${theme.colors.primary};
   font-weight: 600;
 `;
-
+// Exporta a tela como padrão
 export default AdminDashboardScreen; 

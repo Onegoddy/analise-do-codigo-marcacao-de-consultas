@@ -1,54 +1,62 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, Alert } from 'react-native';
-import { Button, ListItem, Badge } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import { notificationService, Notification } from '../services/notifications';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
 
+import React, { useState } from 'react';// React base e hooks de estado
+import styled from 'styled-components/native';// Para estilização de componentes React Native
+import { ScrollView, ViewStyle, Alert } from 'react-native';// Componentes nativos e tipos
+import { Button, ListItem, Badge } from 'react-native-elements';// Componentes prontos de UI
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação
+import { useNavigation } from '@react-navigation/native';// Hook para navegação
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem para a pilha de navegação
+import { useFocusEffect } from '@react-navigation/native';// Hook para executar efeitos quando a tela ganha foco
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas
+import theme from '../styles/theme';// Tema do app (cores, espaçamentos)
+import Header from '../components/Header';// Componente de cabeçalho
+import { notificationService, Notification } from '../services/notifications';// Serviços de notificações
+
+// ====== TIPAGEM DAS PROPRIEDADES DO COMPONENTE ======
 type NotificationsScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Notifications'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Notifications'>;// Navegação tipada para a tela de notificações
+
 };
-
+// ====== COMPONENTE PRINCIPAL ======
 const NotificationsScreen: React.FC = () => {
-  const { user } = useAuth();
-  const navigation = useNavigation<NotificationsScreenProps['navigation']>();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const { user } = useAuth();// Usuário logado
+  const navigation = useNavigation<NotificationsScreenProps['navigation']>();// Hook de navegação
+  const [notifications, setNotifications] = useState<Notification[]>([]);// Estado para armazenar notificações
+  const [loading, setLoading] = useState(true);// Estado de carregamento
+  
+  // ====== FUNÇÃO PARA CARREGAR NOTIFICAÇÕES ======
   const loadNotifications = async () => {
-    if (!user?.id) return;
+    if (!user?.id) return;// Verifica se usuário está logado
     
     try {
-      const userNotifications = await notificationService.getNotifications(user.id);
-      setNotifications(userNotifications);
+      const userNotifications = await notificationService.getNotifications(user.id);// Busca notificações do usuário
+      setNotifications(userNotifications);// Atualiza estado
     } catch (error) {
-      console.error('Erro ao carregar notificações:', error);
+      console.error('Erro ao carregar notificações:', error);// Log de erro
     } finally {
-      setLoading(false);
+      setLoading(false);// Desativa loading
     }
   };
 
+  // ====== EFEITO PARA RECARREGAR NOTIFICAÇÕES QUANDO A TELA ESTIVER EM FOCO ======
   useFocusEffect(
     React.useCallback(() => {
       loadNotifications();
     }, [user?.id])
   );
-
+ 
+  // ====== FUNÇÃO PARA MARCAR UMA NOTIFICAÇÃO COMO LIDA ======
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       await notificationService.markAsRead(notificationId);
-      loadNotifications();
+      loadNotifications();// Atualiza a lista
     } catch (error) {
       console.error('Erro ao marcar como lida:', error);
     }
   };
-
+ 
+  // ====== FUNÇÃO PARA MARCAR TODAS COMO LIDAS ======
   const handleMarkAllAsRead = async () => {
     if (!user?.id) return;
     
@@ -60,6 +68,7 @@ const NotificationsScreen: React.FC = () => {
     }
   };
 
+  // ====== FUNÇÃO PARA EXCLUIR UMA NOTIFICAÇÃO ======
   const handleDeleteNotification = async (notificationId: string) => {
     Alert.alert(
       'Excluir Notificação',
@@ -81,7 +90,8 @@ const NotificationsScreen: React.FC = () => {
       ]
     );
   };
-
+  
+  // ====== FUNÇÃO PARA DEFINIR O ÍCONE DE CADA NOTIFICAÇÃO ======
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'appointment_confirmed':
@@ -94,7 +104,8 @@ const NotificationsScreen: React.FC = () => {
         return '📩';
     }
   };
-
+  
+  // ====== FORMATA DATA PARA EXIBIÇÃO ======
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', {
@@ -106,8 +117,10 @@ const NotificationsScreen: React.FC = () => {
     });
   };
 
+  // ====== CALCULA QUANTAS NOTIFICAÇÕES ESTÃO NÃO LIDAS ======
   const unreadCount = notifications.filter(n => !n.read).length;
-
+  
+  // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Header />
@@ -174,6 +187,7 @@ const NotificationsScreen: React.FC = () => {
   );
 };
 
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   scrollContent: {
     padding: 20,
@@ -210,6 +224,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -283,4 +298,5 @@ const DateText = styled.Text`
   margin-top: 4px;
 `;
 
+// ====== EXPORTA O COMPONENTE ======
 export default NotificationsScreen;

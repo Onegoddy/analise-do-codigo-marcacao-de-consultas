@@ -1,41 +1,50 @@
+// Importações principais do React e do React Native
+
 import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, Alert } from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import styled from 'styled-components/native';// Biblioteca para estilizar componentes usando CSS-in-JS
+import { ScrollView, ViewStyle, Alert } from 'react-native';// Componentes básicos do RN + Alert para mensagens
+import { Button, Input } from 'react-native-elements';// Componentes prontos de UI (botões e inputs)
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação da aplicação
+import { useNavigation } from '@react-navigation/native';// Hook para navegação entre telas
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem para navegação (stack navigation)
+import { RootStackParamList } from '../types/navigation';// Tipagem customizada das rotas
+import theme from '../styles/theme';// Arquivo de tema com cores e estilos
+import Header from '../components/Header';// Componente de cabeçalho reutilizável
+import AsyncStorage from '@react-native-async-storage/async-storage';// Biblioteca para armazenamento local (persistência de dados)
+
+// Tipagem das props da tela para garantir segurança de tipos
 
 type EditProfileScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditProfile'>;
 };
-
+// Componente principal da tela de edição de perfil
 const EditProfileScreen: React.FC = () => {
+    // Recupera usuário atual e função para atualizar os dados do contexto
   const { user, updateUser } = useAuth();
+   // Hook de navegação tipado para poder chamar navigation.goBack() ou navigation.navigate()
   const navigation = useNavigation<EditProfileScreenProps['navigation']>();
   
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [specialty, setSpecialty] = useState(user?.specialty || '');
-  const [loading, setLoading] = useState(false);
-
+  // Estados locais para armazenar valores dos inputs
+  const [name, setName] = useState(user?.name || ''); // Nome do usuário
+  const [email, setEmail] = useState(user?.email || ''); // Email do usuário
+  const [specialty, setSpecialty] = useState(user?.specialty || '');// Especialidade (apenas se for médico)
+  const [loading, setLoading] = useState(false);// Estado de carregamento (usado ao salvar alterações)
+  
+  // Função chamada ao clicar no botão "Salvar Alterações"
   const handleSaveProfile = async () => {
     try {
-      setLoading(true);
-
+      setLoading(true);// Ativa estado de loading
+      
+      // Valida campos obrigatórios
       if (!name.trim() || !email.trim()) {
         Alert.alert('Erro', 'Nome e email são obrigatórios');
         return;
       }
-
+      // Cria objeto atualizado do usuário
       const updatedUser = {
-        ...user!,
-        name: name.trim(),
-        email: email.trim(),
+        ...user!,// Mantém os dados anteriores
+        name: name.trim(),// Atualiza nome
+        email: email.trim(),// Atualiza email
         ...(user?.role === 'doctor' && { specialty: specialty.trim() }),
       };
 
@@ -50,13 +59,14 @@ const EditProfileScreen: React.FC = () => {
       ]);
 
     } catch (error) {
+      // Em caso de erro mostra mensagem
       Alert.alert('Erro', 'Não foi possível atualizar o perfil');
       console.error('Erro ao atualizar perfil:', error);
     } finally {
       setLoading(false);
     }
   };
-
+ // JSX da tela
   return (
     <Container>
       <Header />
@@ -117,7 +127,7 @@ const EditProfileScreen: React.FC = () => {
     </Container>
   );
 };
-
+// Estilos em objeto JS para serem aplicados em alguns componentes
 const styles = {
   scrollContent: {
     padding: 20,
@@ -138,7 +148,7 @@ const styles = {
     paddingVertical: 12,
   },
 };
-
+// Estilos usando styled-components
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -190,5 +200,5 @@ const RoleText = styled.Text`
   font-size: 14px;
   font-weight: 500;
 `;
-
+// Exporta a tela como padrão
 export default EditProfileScreen;

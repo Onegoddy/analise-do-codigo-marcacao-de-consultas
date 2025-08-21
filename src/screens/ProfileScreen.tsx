@@ -1,22 +1,26 @@
-import React from 'react';
-import styled from 'styled-components/native';
-import { Button, ListItem } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import { ViewStyle } from 'react-native';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
+import React from 'react';// React
+import styled from 'styled-components/native'; // Estilização
+import { Button, ListItem } from 'react-native-elements';// Componentes de UI prontos
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação
+import { useNavigation } from '@react-navigation/native';// Hook de navegação
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem para navegação
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas
+import theme from '../styles/theme'; // Tema do app
+import Header from '../components/Header';// Componente de cabeçalho
+import { ViewStyle } from 'react-native';// Tipos nativos
 
+// ====== TIPAGEM DAS PROPRIEDADES DO COMPONENTE ======
 type ProfileScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 };
 
+// ====== COMPONENTE PRINCIPAL ======
 const ProfileScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
-  const navigation = useNavigation<ProfileScreenProps['navigation']>();
+  const { user, signOut } = useAuth();// Usuário logado e função de logout
+  const navigation = useNavigation<ProfileScreenProps['navigation']>();// Hook de navegação
 
+    // ====== FUNÇÃO AUXILIAR PARA TRADUZIR O PAPEL DO USUÁRIO ======
   const getRoleText = (role: string) => {
     switch (role) {
       case 'admin':
@@ -29,7 +33,8 @@ const ProfileScreen: React.FC = () => {
         return role;
     }
   };
-
+ 
+  // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Header />
@@ -73,7 +78,7 @@ const ProfileScreen: React.FC = () => {
     </Container>
   );
 };
-
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   scrollContent: {
     padding: 20,
@@ -96,6 +101,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -171,4 +177,5 @@ const SpecialtyText = styled.Text`
   margin-top: 8px;
 `;
 
+// ====== EXPORTAÇÃO DO COMPONENTE ======
 export default ProfileScreen;

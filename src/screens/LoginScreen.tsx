@@ -1,37 +1,42 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { Input, Button, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import theme from '../styles/theme';
-import { ViewStyle } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
 
+import React, { useState } from 'react';// Biblioteca base do React e hooks de estado
+import styled from 'styled-components/native';// Para estilização de componentes React Native
+import { Input, Button, Text } from 'react-native-elements';// Componentes visuais prontos (Input, Button, Text)
+import { useAuth } from '../contexts/AuthContext';// Tipagem para estilos de container
+import theme from '../styles/theme';// Contexto de autenticação do app
+import { ViewStyle } from 'react-native';// Hook de navegação
+import { useNavigation } from '@react-navigation/native';// Tipagem da pilha de navegação
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem das rotas da aplicação
+import { RootStackParamList } from '../types/navigation';// Tema padrão com cores e espaçamentos
+
+// ====== TIPAGEM DAS PROPRIEDADES DO LOGIN SCREEN ======
 type LoginScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;// Navegação tipada para a tela de login
 };
 
+// ====== COMPONENTE PRINCIPAL ======
 const LoginScreen: React.FC = () => {
-  const { signIn } = useAuth();
-  const navigation = useNavigation<LoginScreenProps['navigation']>();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { signIn } = useAuth();// Função de login do contexto
+  const navigation = useNavigation<LoginScreenProps['navigation']>();// Hook de navegação tipado
+  const [email, setEmail] = useState('');// Estado para armazenar email digitado
+  const [password, setPassword] = useState('');// Estado para armazenar senha digitada
+  const [loading, setLoading] = useState(false);// Estado para controlar spinner de carregamento
+  const [error, setError] = useState('');// Estado para mensagens de erro
 
+  // ====== FUNÇÃO DE LOGIN ======
   const handleLogin = async () => {
     try {
-      setLoading(true);
-      setError('');
-      await signIn({ email, password });
+      setLoading(true);// Ativa o spinner
+      setError('');// Reseta qualquer erro anterior
+      await signIn({ email, password });// Tenta logar usando o contexto
     } catch (err) {
-      setError('Email ou senha inválidos');
+      setError('Email ou senha inválidos');// Mensagem de erro caso login falhe
     } finally {
-      setLoading(false);
+      setLoading(false);// Desativa o spinner
     }
   };
-
+ // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Title>App Marcação de Consultas</Title>
@@ -80,7 +85,7 @@ const LoginScreen: React.FC = () => {
     </Container>
   );
 };
-
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   input: {
     marginBottom: 15,
@@ -113,7 +118,7 @@ const styles = {
     fontSize: 12,
   },
 };
-
+// ====== ESTILIZAÇÃO COM STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   padding: 20px;
@@ -134,5 +139,5 @@ const ErrorText = styled.Text`
   text-align: center;
   margin-bottom: 10px;
 `;
-
+// ====== EXPORTA O COMPONENTE ======
 export default LoginScreen; 

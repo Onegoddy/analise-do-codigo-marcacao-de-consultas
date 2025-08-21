@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, TextStyle } from 'react-native';
-import { Button, ListItem, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
 
+import React, { useState } from 'react';// React e hook de estado
+import styled from 'styled-components/native';// Para estilização de componentes
+import { ScrollView, ViewStyle, TextStyle } from 'react-native';// Componentes nativos e tipos
+import { Button, ListItem, Text } from 'react-native-elements';// Componentes prontos de UI
+import { useAuth } from '../contexts/AuthContext';// Contexto de autenticação
+import { useNavigation } from '@react-navigation/native';// Hook de navegação
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipagem para navegação
+import { useFocusEffect } from '@react-navigation/native';// Hook para efeito quando a tela ganha foco
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas do app
+import theme from '../styles/theme';// Tema do app (cores, espaçamentos
+import Header from '../components/Header';// Componente de cabeçalho
+import AsyncStorage from '@react-native-async-storage/async-storage';// Armazenamento local
+
+// ====== TIPAGEM DAS PROPRIEDADES DO COMPONENTE ======
 type PatientDashboardScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'PatientDashboard'>;
 };
 
+// ====== TIPAGEM DAS CONSULTAS ======
 interface Appointment {
   id: string;
   patientId: string;
@@ -27,10 +31,12 @@ interface Appointment {
   status: 'pending' | 'confirmed' | 'cancelled';
 }
 
+// ====== TIPAGEM PARA COMPONENTES STYLED ======
 interface StyledProps {
   status: string;
 }
 
+// ====== FUNÇÕES AUXILIARES PARA STATUS ======
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -53,26 +59,28 @@ const getStatusText = (status: string) => {
   }
 };
 
+// ====== COMPONENTE PRINCIPAL ======
 const PatientDashboardScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
-  const navigation = useNavigation<PatientDashboardScreenProps['navigation']>();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const { user, signOut } = useAuth();// Usuário logado e função de logout
+  const navigation = useNavigation<PatientDashboardScreenProps['navigation']>();// Hook de navegação
+  const [appointments, setAppointments] = useState<Appointment[]>([]);// Lista de consultas do paciente
+  const [loading, setLoading] = useState(true);// Estado de carregamento
+  
+  // ====== FUNÇÃO PARA CARREGAR CONSULTAS ======
   const loadAppointments = async () => {
     try {
-      const storedAppointments = await AsyncStorage.getItem('@MedicalApp:appointments');
+      const storedAppointments = await AsyncStorage.getItem('@MedicalApp:appointments');// Busca consultas no AsyncStorage
       if (storedAppointments) {
-        const allAppointments: Appointment[] = JSON.parse(storedAppointments);
+        const allAppointments: Appointment[] = JSON.parse(storedAppointments);// Converte string para array
         const userAppointments = allAppointments.filter(
-          (appointment) => appointment.patientId === user?.id
+          (appointment) => appointment.patientId === user?.id// Filtra apenas as consultas do paciente logado
         );
-        setAppointments(userAppointments);
+        setAppointments(userAppointments);// Atualiza estado
       }
     } catch (error) {
-      console.error('Erro ao carregar consultas:', error);
+      console.error('Erro ao carregar consultas:', error);// Log de erro
     } finally {
-      setLoading(false);
+      setLoading(false);// Desativa loading
     }
   };
 
@@ -82,7 +90,8 @@ const PatientDashboardScreen: React.FC = () => {
       loadAppointments();
     }, [])
   );
-
+  
+  // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Header />
@@ -151,6 +160,7 @@ const PatientDashboardScreen: React.FC = () => {
   );
 };
 
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   scrollContent: {
     padding: 20,
@@ -193,6 +203,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -243,4 +254,5 @@ const StatusText = styled.Text<StyledProps>`
   font-weight: 500;
 `;
 
+// ====== EXPORTAÇÃO DO COMPONENTE ======
 export default PatientDashboardScreen; 

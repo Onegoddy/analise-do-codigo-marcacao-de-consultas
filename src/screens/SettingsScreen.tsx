@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, Alert, Share } from 'react-native';
-import { Button, ListItem, Switch, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import { storageService } from '../services/storage';
+// ====== IMPORTS DE DEPENDÊNCIAS ======
+import React, { useState } from 'react';// Importa o React e o hook useState para gerenciar estados locais
+import styled from 'styled-components/native';// Biblioteca para criar componentes estilizados no React Native
+import { ScrollView, ViewStyle, Alert, Share } from 'react-native';// Componentes e tipos do React Native:ScrollView - container rolável, ViewStyle, TextStyle - tipagens para estilos, Alert - exibe alertas nativos, Share - permite compartilhar conteúdos via apps do sistema
+import { Button, ListItem, Switch, Text } from 'react-native-elements';// Componentes prontos do React Native Elements: botão, lista, switch e texto
+import { useAuth } from '../contexts/AuthContext';// Hook customizado para autenticação, fornecido pelo contexto AuthContext
+import { useNavigation } from '@react-navigation/native';// Hook do React Navigation para navegação entre telas
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipo do stack navigator nativo para tipagem segura da navegação
+import { useFocusEffect } from '@react-navigation/native';// Hook que executa efeitos quando a tela entra em foco
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas da aplicação, usado para navegação tipada
+import theme from '../styles/theme';// Tema da aplicação contendo cores, fontes e estilos padrão
+import Header from '../components/Header';// Componente de cabeçalho reutilizável
+import { storageService } from '../services/storage';// Serviço customizado para lidar com armazenamento e backup de dados
 
+// ====== TIPAGEM DAS PROPRIEDADES DO COMPONENTE ======
 type SettingsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 };
 
+// Estrutura das configurações do app
 interface AppSettings {
   notifications: boolean;
   autoBackup: boolean;
@@ -22,6 +25,7 @@ interface AppSettings {
   language: string;
 }
 
+// ====== COMPONENTE PRINCIPAL ======
 const SettingsScreen: React.FC = () => {
   const { user, signOut } = useAuth();
   const navigation = useNavigation<SettingsScreenProps['navigation']>();
@@ -34,6 +38,7 @@ const SettingsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [storageInfo, setStorageInfo] = useState<any>(null);
 
+  // ====== CARREGAR CONFIGURAÇÕES ======
   const loadSettings = async () => {
     try {
       const appSettings = await storageService.getAppSettings();
@@ -47,13 +52,14 @@ const SettingsScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
+  // Executa sempre que a tela entra em foco
   useFocusEffect(
     React.useCallback(() => {
       loadSettings();
     }, [])
   );
-
+ // ====== ATUALIZAR UMA CONFIGURAÇÃO ======
   const updateSetting = async (key: keyof AppSettings, value: any) => {
     try {
       const updatedSettings = { ...settings, [key]: value };
@@ -65,6 +71,7 @@ const SettingsScreen: React.FC = () => {
     }
   };
 
+  // ====== BACKUP ======
   const handleCreateBackup = async () => {
     try {
       setLoading(true);
@@ -85,7 +92,8 @@ const SettingsScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
+  // ====== LIMPAR CACHE ======
   const handleClearCache = async () => {
     Alert.alert(
       'Limpar Cache',
@@ -108,7 +116,8 @@ const SettingsScreen: React.FC = () => {
       ]
     );
   };
-
+  
+  // ====== APAGAR TODOS OS DADOS ======
   const handleClearAllData = async () => {
     Alert.alert(
       'Apagar Todos os Dados',
@@ -146,6 +155,7 @@ const SettingsScreen: React.FC = () => {
     );
   };
 
+  // ====== LOADING ======
   if (loading) {
     return (
       <Container>
@@ -157,6 +167,7 @@ const SettingsScreen: React.FC = () => {
     );
   }
 
+  // ====== RENDERIZAÇÃO PRINCIPAL ======
   return (
     <Container>
       <Header />
@@ -239,7 +250,7 @@ const SettingsScreen: React.FC = () => {
     </Container>
   );
 };
-
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   scrollContent: {
     padding: 20,
@@ -266,6 +277,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED-COMPONENTS ======
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -326,4 +338,5 @@ const InfoValue = styled.Text`
   color: ${theme.colors.primary};
 `;
 
+// ====== EXPORTAÇÃO DO COMPONENTE ======
 export default SettingsScreen;

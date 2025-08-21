@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import styled from 'styled-components/native';
-import { ScrollView, ViewStyle, TextStyle } from 'react-native';
-import { Button, ListItem, Text } from 'react-native-elements';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-import theme from '../styles/theme';
-import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// ====== IMPORTS ======
+import React, { useState } from 'react';// Importa o React e o hook useState para gerenciar estados locais
+import styled from 'styled-components/native';// Biblioteca para criar componentes estilizados no React Native
+import { ScrollView, ViewStyle, TextStyle } from 'react-native';// Componentes e tipos do React Native
+import { Button, ListItem, Text } from 'react-native-elements';// Componentes prontos do React Native Elements: botão, lista e texto
+import { useAuth } from '../contexts/AuthContext';// Hook customizado para autenticação, fornecido pelo contexto AuthContext
+import { useNavigation } from '@react-navigation/native';// Hook do React Navigation para navegação entre telas
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';// Tipo do stack navigator nativo para tipagem segura da navegação
+import { useFocusEffect } from '@react-navigation/native';// Hook que executa efeitos quando a tela entra em foco
+import { RootStackParamList } from '../types/navigation';// Tipagem das rotas da aplicação, usado para navegação tipada
+import theme from '../styles/theme';// Tema da aplicação contendo cores, fontes e estilos padrão
+import Header from '../components/Header';// Componente de cabeçalho reutilizável
+import AsyncStorage from '@react-native-async-storage/async-storage';// Biblioteca para armazenamento assíncrono local (AsyncStorage)
 
+// ====== TIPAGEM ======
 type UserManagementScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'UserManagement'>;
 };
@@ -26,12 +28,14 @@ interface StyledProps {
   role: string;
 }
 
+// ====== COMPONENTE PRINCIPAL ======
 const UserManagementScreen: React.FC = () => {
   const { user } = useAuth();
   const navigation = useNavigation<UserManagementScreenProps['navigation']>();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-
+   
+  // ====== FUNÇÃO PARA CARREGAR USUÁRIOS ======
   const loadUsers = async () => {
     try {
       const storedUsers = await AsyncStorage.getItem('@MedicalApp:users');
@@ -47,7 +51,8 @@ const UserManagementScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
+   
+  // ====== FUNÇÃO PARA DELETAR USUÁRIO ======
   const handleDeleteUser = async (userId: string) => {
     try {
       const storedUsers = await AsyncStorage.getItem('@MedicalApp:users');
@@ -69,6 +74,7 @@ const UserManagementScreen: React.FC = () => {
     }, [])
   );
 
+  // ====== FUNÇÃO PARA EXIBIR TEXTO DO PAPEL ======
   const getRoleText = (role: string) => {
     switch (role) {
       case 'admin':
@@ -82,6 +88,7 @@ const UserManagementScreen: React.FC = () => {
     }
   };
 
+  // ====== RENDERIZAÇÃO ======
   return (
     <Container>
       <Header />
@@ -144,6 +151,7 @@ const UserManagementScreen: React.FC = () => {
   );
 };
 
+// ====== ESTILOS AUXILIARES ======
 const styles = {
   scrollContent: {
     padding: 20,
@@ -184,6 +192,7 @@ const styles = {
   },
 };
 
+// ====== COMPONENTES STYLED ======
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -258,4 +267,5 @@ const ButtonContainer = styled.View`
   margin-top: 8px;
 `;
 
+// ====== EXPORT ======
 export default UserManagementScreen; 
