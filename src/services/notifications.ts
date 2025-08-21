@@ -1,5 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';// Armazenamento local para salvar e recuperar notificações
 
+// Estrutura de uma notificação no sistema
 export interface Notification {
   id: string;
   userId: string;
@@ -8,10 +9,10 @@ export interface Notification {
   type: 'appointment_confirmed' | 'appointment_cancelled' | 'appointment_reminder' | 'general';
   read: boolean;
   createdAt: string;
-  appointmentId?: string;
+  appointmentId?: string;// (opcional) consulta relacionada
 }
 
-const STORAGE_KEY = '@MedicalApp:notifications';
+const STORAGE_KEY = '@MedicalApp:notifications';// Chave usada no AsyncStorage
 
 export const notificationService = {
   async getNotifications(userId: string): Promise<Notification[]> {
@@ -27,6 +28,7 @@ export const notificationService = {
     }
   },
 
+  // Cria e salva uma nova notificação
   async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'read'>): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -45,7 +47,8 @@ export const notificationService = {
       console.error('Erro ao criar notificação:', error);
     }
   },
-
+  
+  // Marca uma notificação específica como lida
   async markAsRead(notificationId: string): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -60,7 +63,8 @@ export const notificationService = {
       console.error('Erro ao marcar notificação como lida:', error);
     }
   },
-
+  
+  // Marca todas notificações do usuário como lidas
   async markAllAsRead(userId: string): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -76,6 +80,7 @@ export const notificationService = {
     }
   },
 
+  // Deleta uma notificação pelo ID
   async deleteNotification(notificationId: string): Promise<void> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -88,6 +93,7 @@ export const notificationService = {
     }
   },
 
+  // Conta notificações não lidas de um usuário
   async getUnreadCount(userId: string): Promise<number> {
     try {
       const notifications = await this.getNotifications(userId);

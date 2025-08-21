@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Estrutura genérica para armazenamento
 export interface StorageData {
   [key: string]: any;
 }
@@ -77,7 +78,8 @@ export const storageService = {
       return defaultValue || null;
     }
   },
-
+  
+  // Remove item
   async removeItem(key: string): Promise<void> {
     try {
       await AsyncStorage.removeItem(key);
@@ -88,6 +90,7 @@ export const storageService = {
     }
   },
 
+  // Limpa tudo (cache + AsyncStorage)
   async clearAll(): Promise<void> {
     try {
       await AsyncStorage.clear();

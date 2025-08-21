@@ -1,5 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// ====== IMPORTS ======
+import AsyncStorage from '@react-native-async-storage/async-storage';// Usado para armazenar e recuperar consultas do dispositivo
 
+// Estrutura de uma consulta
 interface Appointment {
   id: string;
   patientId: string;
@@ -9,9 +11,10 @@ interface Appointment {
   date: string;
   time: string;
   specialty: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled';// status da consulta
 }
 
+// Estrutura geral das estatísticas do sistema
 export interface Statistics {
   totalAppointments: number;
   confirmedAppointments: number;
@@ -29,6 +32,7 @@ export interface Statistics {
 }
 
 export const statisticsService = {
+  // Estatísticas gerais de todas as consultas do sistema
   async getGeneralStatistics(): Promise<Statistics> {
     try {
       const appointmentsData = await AsyncStorage.getItem('@MedicalApp:appointments');
@@ -101,6 +105,7 @@ export const statisticsService = {
     }
   },
 
+  // Estatísticas de consultas de um médico específico
   async getDoctorStatistics(doctorId: string): Promise<Partial<Statistics>> {
     try {
       const appointmentsData = await AsyncStorage.getItem('@MedicalApp:appointments');
@@ -135,7 +140,8 @@ export const statisticsService = {
       throw error;
     }
   },
-
+  
+  // Estatísticas de consultas de um paciente específico
   async getPatientStatistics(patientId: string): Promise<Partial<Statistics>> {
     try {
       const appointmentsData = await AsyncStorage.getItem('@MedicalApp:appointments');

@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, LoginCredentials, RegisterData, AuthResponse } from '../types/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';// Biblioteca para salvar e recuperar dados localmente (ex: token, usuário).
+import { User, LoginCredentials, RegisterData, AuthResponse } from '../types/auth';// Tipos relacionados à autenticação: usuário, login, cadastro e resposta da API.
 
 // Chaves de armazenamento
 const STORAGE_KEYS = {
