@@ -1,4 +1,4 @@
-# README — Refatoração das telas (etapa atual)
+# Atividade Checkpoint 2 – Refatoração de Telas Marcação de Consultas
 
 ## Sobre o Projeto
 
